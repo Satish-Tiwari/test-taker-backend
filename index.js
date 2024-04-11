@@ -42,6 +42,23 @@ app.use("/api/v1", questionsRoute);
 app.use("/api/v1", userRoute);
 app.use("/api/v1/admin", adminRoute);
 
+const cseId = process.env.CSE_ID;
+const apiKey = process.env.API_KEY;
+app.get('/api/v2/search', async(req,res)=>{
+    const {query} = req.query;
+
+    const url = 'https://www.googleapis.com/customsearch/v1?key=' + apiKey + '&cx=' + cseId + '&q=' + encodeURIComponent(query);
+
+    try{
+        const response = await fetch(url);
+        const json = await response.json();
+        const data = json.items;
+        return res.status(200).json({success:true, data});
+    } catch(err){
+        return res.status(500).json({success:false, message:"Internal Server Error ..."});
+    }
+})
+
 //  Error Handler...
 const errorMiddleware = require("./middleware/error");
 app.use(errorMiddleware);
